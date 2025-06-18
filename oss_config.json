@@ -1,0 +1,6 @@
+{
+  "access_key_id": "你的access_key_id",
+  "access_key_secret": "你的access_key_secret",
+  "endpoint": "你的endpoint",
+  "bucket_name": "你的bucket名字"
+}
