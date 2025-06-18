@@ -10,13 +10,9 @@ arXivAgent 是一个基于大模型和数据挖掘技术的论文助手，能够
 - 利用 MinerU 模型进行论文内容挖掘和摘要生成
 - 交互式界面，方便用户查询和管理关注论文
 
-### 界面展示示例
+### 视频演示
 
-<video width="600" controls>
-  <source src="./example.mp4" type="video/mp4">
-  您的浏览器不支持视频标签。
-</video>
-
+[![arXivAgent example video - YouTube](https://res.cloudinary.com/marcomontalbano/image/upload/v1750208970/video_to_markdown/images/youtube--w4jNM3CX9F0-c05b58ac6eb4c4700831b2b3070cd403.jpg)](https://www.youtube.com/watch?v=w4jNM3CX9F0 "arXivAgent example video - YouTube")
 *演示视频*
 
 ---
