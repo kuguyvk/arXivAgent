@@ -4,9 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>arXiv 论文摘要生成工具</title>
-    <!-- Markdown渲染库 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.2/marked.min.js"></script>
-    <!-- 代码高亮库 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
     <style>
@@ -17,382 +18,163 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(180deg, #f5f0ff 0%, #ede7f6 100%);
             min-height: 100vh;
-            padding: 20px;
+            color: #333;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
-        .container {
+        /* 顶部导航栏 */
+        .navbar {
+            background: #fff;
+            border-bottom: 1px solid #e8e0f0;
+            padding: 14px 32px;
+            display: flex;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .navbar h1 {
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: #6b5a9a;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+        }
+
+        .navbar h1::before {
+            content: '🔬';
+            font-size: 1.2rem;
+        }
+
+        /* 主容器 */
+        .main-container {
             max-width: 1200px;
             margin: 0 auto;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
+            padding: 24px 32px;
         }
 
-        .header {
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-            color: white;
-            padding: 40px;
-            text-align: center;
+        /* 搜索区域 */
+        .search-section {
+            background: #fff;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            border: 1px solid #e8e0f0;
+            box-shadow: 0 1px 3px rgba(107, 90, 154, 0.05);
         }
 
-        .header h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        .search-section h2 {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #5a4a7a;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
 
-        .header p {
-            font-size: 1.1rem;
-            opacity: 0.9;
-        }
-
-        .main-content {
+        .search-form {
             display: grid;
-            grid-template-columns: 1fr 2fr;
-            gap: 30px;
-            padding: 40px;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px 20px;
+            align-items: end;
         }
 
-        .form-section {
-            background: #f8f9fa;
-            padding: 30px;
-            border-radius: 15px;
-            border: 1px solid #e9ecef;
+        .form-row {
+            display: contents;
         }
 
         .form-group {
-            margin-bottom: 25px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-group.full-width {
+            grid-column: span 4;
+        }
+
+        .form-group.half-width {
+            grid-column: span 2;
+        }
+
+        .form-group.third-width {
+            grid-column: span 1;
+        }
+
+        .form-row-inline {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px 20px;
         }
 
         .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: #495057;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: #6b5a9a;
         }
 
         .form-group input,
         .form-group select {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e9ecef;
+            padding: 10px 12px;
+            border: 1px solid #e0d8f0;
             border-radius: 8px;
-            font-size: 16px;
-            transition: all 0.3s ease;
-            background: white;
+            font-size: 13px;
+            background: #faf8ff;
+            transition: all 0.2s ease;
+            font-family: 'Inter', 'PingFang SC', 'Microsoft YaHei', sans-serif;
         }
 
         .form-group input:focus,
         .form-group select:focus {
             outline: none;
-            border-color: #4facfe;
-            box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
+            border-color: #9c7dd8;
+            box-shadow: 0 0 0 3px rgba(156, 125, 216, 0.1);
+            background: #fff;
         }
 
-        .btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+        .form-group input::placeholder {
+            color: #b8a8c8;
+        }
+
+        .btn-submit {
+            background: linear-gradient(135deg, #9c7dd8 0%, #8b6fc9 100%);
+            color: #fff;
             border: none;
-            padding: 15px 30px;
-            border-radius: 50px;
-            font-size: 16px;
+            padding: 11px 24px;
+            border-radius: 8px;
+            font-size: 13px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
-            width: 100%;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+            font-family: 'Inter', 'PingFang SC', 'Microsoft YaHei', sans-serif;
         }
 
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        .btn-submit:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(156, 125, 216, 0.3);
         }
 
-        .btn:disabled {
+        .btn-submit:disabled {
             opacity: 0.6;
             cursor: not-allowed;
-            transform: none;
         }
 
-        .results-section {
-            background: white;
-            border-radius: 15px;
-            border: 1px solid #e9ecef;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            height: 700px;
-        }
-
-        .results-header {
-            background: #495057;
-            color: white;
-            padding: 20px;
-            font-size: 1.2rem;
-            font-weight: 600;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .pagination-info {
-            font-size: 0.9rem;
-            opacity: 0.9;
-        }
-
-        .results-content {
-            flex: 1;
-            padding: 30px;
-            overflow-y: auto;
-        }
-
-        .pagination-controls {
-            background: #f8f9fa;
-            padding: 20px;
-            border-top: 1px solid #e9ecef;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .pagination-btn {
-            background: #6c757d;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 25px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-weight: 600;
-        }
-
-        .pagination-btn:hover:not(:disabled) {
-            background: #495057;
-            transform: translateY(-1px);
-        }
-
-        .pagination-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .pagination-btn.primary {
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-        }
-
-        .pagination-btn.primary:hover:not(:disabled) {
-            background: linear-gradient(135deg, #3d8bfe 0%, #00d4fe 100%);
-        }
-
-        .pagination-dots {
-            display: flex;
-            gap: 8px;
-        }
-
-        .pagination-dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: #dee2e6;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .pagination-dot.active {
-            background: #4facfe;
-            transform: scale(1.2);
-        }
-
-        .pagination-dot:hover {
-            background: #adb5bd;
-        }
-
-        .loading {
-            text-align: center;
-            padding: 40px;
-            color: #6c757d;
-        }
-
-        .spinner {
-            width: 50px;
-            height: 50px;
-            border: 5px solid #f3f3f3;
-            border-top: 5px solid #4facfe;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 20px;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .error {
-            background: #f8d7da;
-            color: #721c24;
-            padding: 20px;
+        /* 进度条 */
+        .progress-section {
+            background: #fff;
             border-radius: 12px;
-            margin: 20px 0;
-            border: 1px solid #f5c6cb;
-            text-align: center;
-        }
-
-        .error-icon {
-            font-size: 3rem;
-            margin-bottom: 15px;
-        }
-
-        .success {
-            background: #d4edda;
-            color: #155724;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            border: 1px solid #c3e6cb;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 50px;
-            color: #6c757d;
-        }
-
-        .empty-state .icon {
-            font-size: 3rem;
-            margin-bottom: 20px;
-        }
-
-        /* Markdown 样式 */
-        .markdown-content {
-            line-height: 1.7;
-            color: #333;
-        }
-
-        .markdown-content h1,
-        .markdown-content h2,
-        .markdown-content h3,
-        .markdown-content h4,
-        .markdown-content h5,
-        .markdown-content h6 {
-            margin: 1.5rem 0 1rem 0;
-            color: #2c3e50;
-            font-weight: 600;
-        }
-
-        .markdown-content h1 {
-            font-size: 2rem;
-            border-bottom: 3px solid #4facfe;
-            padding-bottom: 0.5rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .markdown-content h2 {
-            font-size: 1.5rem;
-            border-bottom: 2px solid #e9ecef;
-            padding-bottom: 0.3rem;
-        }
-
-        .markdown-content h3 {
-            font-size: 1.3rem;
-        }
-
-        .markdown-content p {
-            margin-bottom: 1rem;
-            text-align: justify;
-        }
-
-        .markdown-content ul,
-        .markdown-content ol {
-            margin-bottom: 1rem;
-            padding-left: 2rem;
-        }
-
-        .markdown-content li {
-            margin-bottom: 0.5rem;
-        }
-
-        .markdown-content blockquote {
-            border-left: 4px solid #4facfe;
-            margin: 1rem 0;
-            padding: 1rem 1.5rem;
-            background: #f8f9fa;
-            border-radius: 0 8px 8px 0;
-            font-style: italic;
-        }
-
-        .markdown-content code {
-            background: #f1f3f4;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-            font-size: 0.9em;
-        }
-
-        .markdown-content pre {
-            background: #f8f9fa;
-            border: 1px solid #e9ecef;
-            border-radius: 8px;
-            padding: 1rem;
-            overflow-x: auto;
-            margin: 1rem 0;
-        }
-
-        .markdown-content pre code {
-            background: none;
-            padding: 0;
-        }
-
-        .markdown-content table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 1rem 0;
-        }
-
-        .markdown-content th,
-        .markdown-content td {
-            border: 1px solid #e9ecef;
-            padding: 0.75rem;
-            text-align: left;
-        }
-
-        .markdown-content th {
-            background: #f8f9fa;
-            font-weight: 600;
-        }
-
-        .markdown-content a {
-            color: #4facfe;
-            text-decoration: none;
-        }
-
-        .markdown-content a:hover {
-            text-decoration: underline;
-        }
-
-        .markdown-content img {
-            max-width: 100%;
-            height: auto;
-            border-radius: 8px;
-            margin: 1rem 0;
-        }
-
-        .markdown-content hr {
-            border: none;
-            height: 2px;
-            background: linear-gradient(90deg, #4facfe, #00f2fe);
-            margin: 2rem 0;
-            border-radius: 1px;
-        }
-
-        /* 进度条样式 */
-        .progress-container {
-            margin: 20px 0;
+            padding: 20px 24px;
+            margin-bottom: 24px;
+            border: 1px solid #e8e0f0;
             display: none;
         }
 
@@ -400,226 +182,591 @@
             display: flex;
             justify-content: space-between;
             margin-bottom: 10px;
-            font-weight: 500;
-            color: #495057;
+            font-size: 0.85rem;
+            color: #6b5a9a;
         }
 
         .progress-bar-container {
-            height: 12px;
-            background: #e9ecef;
-            border-radius: 6px;
+            height: 6px;
+            background: #f0e8f8;
+            border-radius: 3px;
             overflow: hidden;
         }
 
         .progress-bar {
             height: 100%;
-            background: linear-gradient(90deg, #4facfe, #00f2fe);
-            border-radius: 6px;
+            background: linear-gradient(90deg, #9c7dd8, #b89fe8);
+            border-radius: 3px;
             transition: width 0.3s ease;
         }
 
-        .paper-card {
-            background: white;
-            border-radius: 12px;
-            border: 1px solid #e9ecef;
-            margin-bottom: 20px;
-            overflow: hidden;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+        /* 结果区域 */
+        .results-section {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
         }
 
-        .paper-card.new {
-            background-color: #e6f7ff;
-            animation: highlight 1s;
-        }
-
-        @keyframes highlight {
-            from { background-color: #b3e0ff; }
-            to { background-color: white; }
-        }
-
-        .paper-header {
-            background: #f8f9fa;
-            padding: 15px 20px;
-            border-bottom: 1px solid #e9ecef;
+        .results-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #e8e0f0;
+            margin-bottom: 8px;
+        }
+
+        .results-header h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #5a4a7a;
+        }
+
+        .results-count {
+            font-size: 0.85rem;
+            color: #8a7a9a;
+        }
+
+        /* 论文卡片 */
+        .paper-card {
+            background: #fff;
+            border-radius: 12px;
+            border: 1px solid #e8e0f0;
+            overflow: hidden;
+            transition: all 0.2s ease;
+        }
+
+        .paper-card:hover {
+            box-shadow: 0 4px 16px rgba(107, 90, 154, 0.1);
+            border-color: #d0c4e8;
+        }
+
+        .paper-card.new {
+            animation: fadeIn 0.4s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .paper-header {
+            background: linear-gradient(135deg, #faf8ff 0%, #f5f0fa 100%);
+            padding: 16px 20px;
+            border-bottom: 1px solid #e8e0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
         }
 
         .paper-title {
+            font-size: 1rem;
             font-weight: 600;
-            font-size: 1.1rem;
-            color: #2c3e50;
+            color: #4a3a6a;
+            line-height: 1.4;
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+        }
+
+        .paper-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            align-items: flex-end;
         }
 
         .paper-status {
-            font-size: 0.85rem;
+            font-size: 0.75rem;
             padding: 4px 10px;
-            border-radius: 20px;
-            background: #e9ecef;
+            border-radius: 12px;
+            font-weight: 500;
         }
 
         .paper-status.success {
-            background: #d4edda;
-            color: #155724;
+            background: #e8f5e9;
+            color: #2e7d32;
         }
 
         .paper-status.error {
-            background: #f8d7da;
-            color: #721c24;
+            background: #ffebee;
+            color: #c62828;
         }
 
         .paper-content {
-            padding: 20px;
+            padding: 24px 20px;
+            line-height: 1.8;
+            color: #444;
+            font-family: 'Inter', 'PingFang SC', 'Microsoft YaHei', sans-serif;
         }
 
         .paper-footer {
-            padding: 15px 20px;
-            background: #f8f9fa;
-            border-top: 1px solid #e9ecef;
+            padding: 14px 20px;
+            background: #faf8ff;
+            border-top: 1px solid #e8e0f0;
+            font-size: 0.8rem;
+            color: #8a7a9a;
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .paper-footer span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* 空状态 */
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            color: #a898b8;
+        }
+
+        .empty-state .icon {
+            font-size: 4rem;
+            margin-bottom: 16px;
+            opacity: 0.6;
+        }
+
+        .empty-state p {
+            font-size: 0.95rem;
+        }
+
+        /* 加载状态 */
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #f0e8f8;
+            border-top-color: #9c7dd8;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 16px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading p {
+            color: #8a7a9a;
             font-size: 0.9rem;
-            color: #6c757d;
+        }
+
+        /* 错误状态 */
+        .error-box {
+            background: #fff5f5;
+            border: 1px solid #fed7d7;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            color: #c53030;
+            margin: 20px 0;
+        }
+
+        .error-box .error-icon {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        /* Markdown 样式 */
+        .markdown-content {
+            line-height: 1.8;
+            font-family: 'Inter', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+        }
+
+        .markdown-content h1,
+        .markdown-content h2,
+        .markdown-content h3 {
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+        }
+
+        .markdown-content h1 {
+            font-size: 1.5rem;
+            color: #5a4a7a;
+            margin: 1.5rem 0 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #e8e0f0;
+        }
+
+        .markdown-content h2 {
+            font-size: 1.25rem;
+            color: #5a4a7a;
+            margin: 1.2rem 0 0.8rem;
+        }
+
+        .markdown-content h3 {
+            font-size: 1.1rem;
+            color: #5a4a7a;
+            margin: 1rem 0 0.6rem;
+        }
+
+        .markdown-content p {
+            margin-bottom: 1rem;
+        }
+
+        .markdown-content ul,
+        .markdown-content ol {
+            margin-bottom: 1rem;
+            padding-left: 1.5rem;
+        }
+
+        .markdown-content li {
+            margin-bottom: 0.4rem;
+        }
+
+        .markdown-content code {
+            background: #f5f0ff;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', 'Monaco', monospace;
+            font-size: 0.9em;
+            color: #6b5a9a;
+            font-feature-settings: 'liga' 1;
+        }
+
+        .markdown-content pre {
+            background: #faf8ff;
+            border: 1px solid #e8e0f0;
+            border-radius: 8px;
+            padding: 14px;
+            overflow-x: auto;
+            margin: 1rem 0;
+            font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', 'Monaco', monospace;
+            font-size: 0.85rem;
+        }
+
+        .markdown-content pre code {
+            background: none;
+            padding: 0;
+            font-family: inherit;
+        }
+
+        .markdown-content blockquote {
+            border-left: 3px solid #9c7dd8;
+            margin: 1rem 0;
+            padding: 10px 16px;
+            background: #faf8ff;
+            font-style: italic;
+            border-radius: 0 6px 6px 0;
+        }
+
+        .markdown-content a {
+            color: #8b6fc9;
+            text-decoration: none;
+        }
+
+        .markdown-content a:hover {
+            text-decoration: underline;
+        }
+
+        .markdown-content strong {
+            color: #5a4a7a;
+        }
+
+        .markdown-content img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 1rem 0;
+            border-radius: 8px;
+            border: 1px solid #e8e0f0;
+        }
+
+        .markdown-content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+            overflow-x: auto;
+            display: block;
+        }
+
+        .markdown-content table {
+            display: table;
+            overflow-x: auto;
+        }
+
+        .markdown-content th,
+        .markdown-content td {
+            border: 1px solid #e8e0f0;
+            padding: 10px 12px;
+            text-align: left;
+        }
+
+        .markdown-content th {
+            background: #f5f0ff;
+            font-weight: 600;
+            color: #5a4a7a;
+        }
+
+        .markdown-content tr:nth-child(even) {
+            background: #faf8ff;
+        }
+
+        /* 响应式 */
+        @media (max-width: 1024px) {
+            .search-form {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .form-group.full-width {
+                grid-column: span 2;
+            }
+
+            .form-group.half-width {
+                grid-column: span 1;
+            }
+
+            .form-group.third-width {
+                grid-column: span 1;
+            }
         }
 
         @media (max-width: 768px) {
-            .main-content {
+            .navbar {
+                padding: 12px 16px;
+            }
+
+            .main-container {
+                padding: 16px;
+            }
+
+            .search-form {
                 grid-template-columns: 1fr;
             }
 
-            .header h1 {
-                font-size: 2rem;
+            .form-group.full-width,
+            .form-group.half-width,
+            .form-group.third-width {
+                grid-column: span 1;
             }
 
-            .container {
-                margin: 10px;
-            }
-
-            .results-section {
-                height: 600px;
-            }
-
-            .pagination-controls {
+            .paper-header {
                 flex-direction: column;
-                gap: 15px;
             }
 
-            .pagination-dots {
-                order: -1;
+            .paper-meta {
+                align-items: flex-start;
             }
-        }
-
-        .input-help {
-            font-size: 0.85rem;
-            color: #6c757d;
-            margin-top: 5px;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>🔬 arXiv 论文摘要生成工具</h1>
-            <p>基于 AI 的学术论文智能分析与摘要生成</p>
-        </div>
+    <!-- 顶部导航栏 -->
+    <nav class="navbar">
+        <h1>arXiv 论文摘要生成工具</h1>
+    </nav>
 
-        <div class="main-content">
-            <div class="form-section">
-                <h2 style="margin-bottom: 25px; color: #495057;">📋 搜索参数</h2>
+    <div class="main-container">
+        <!-- 搜索参数区域 -->
+        <section class="search-section">
+            <h2><span>📋</span> 搜索参数</h2>
+            <form id="searchForm" class="search-form">
+                <!-- API 配置区域 -->
+                <div class="form-group full-width" style="margin-bottom: 8px;">
+                    <label style="color: #8a7a9a; font-size: 0.75rem;">🔌 API 配置</label>
+                </div>
+                <div class="form-group third-width">
+                    <label for="apiBase">🌐 API Base URL</label>
+                    <input type="text" id="apiBase" name="apiBase" required placeholder="base url, e.g. https://api.deepseek.com">
+                </div>
+                <div class="form-group third-width">
+                    <label for="apiKey">🔑 API Key</label>
+                    <input type="password" id="apiKey" name="apiKey" required placeholder="API Key">
+                </div>
+                <div class="form-group third-width">
+                    <label for="modelName">🤖 模型名称</label>
+                    <input type="text" id="modelName" name="modelName" required placeholder="model name, e.g. deepseek-v4-pro">
+                </div>
 
-                <form id="searchForm">
-                    <div class="form-group">
-                        <label for="apiKey">🔑 API Key</label>
-                        <input type="password" id="apiKey" name="apiKey" required
-                               placeholder="输入您的 Gemini API Key">
-                        <div class="input-help">请输入有效的 Google Gemini API Key</div>
-                    </div>
+                <!-- 搜索参数区域 -->
+                <div class="form-group full-width" style="margin-bottom: 8px; margin-top: 8px;">
+                    <label style="color: #8a7a9a; font-size: 0.75rem;">🔎 搜索参数</label>
+                </div>
+                <div class="form-group third-width">
+                    <label for="category">📚 研究领域</label>
+                    <select id="category" name="category" required>
+                        <option value="">选择领域</option>
+                        <option value="cs.CV">计算机视觉（cs.CV）</option>
+                        <option value="cs.AI">人工智能（cs.AI）</option>
+                        <option value="cs.LG">机器学习（cs.LG）</option>
+                        <option value="cs.CL">计算语言学（cs.CL）</option>
+                        <option value="cs.RO">机器人学（cs.RO）</option>
+                        <option value="stat.ML">统计机器学习（stat.ML）</option>
+                        <option value="eess.SY">系统控制（eess.SY）</option>
+                    </select>
+                </div>
+                <div class="form-group third-width">
+                    <label for="maxResults">📊 数量</label>
+                    <select id="maxResults" name="maxResults">
+                        <option value="1">1 篇</option>
+                        <option value="5">5 篇</option>
+                        <option value="10" selected>10 篇</option>
+                        <option value="15">15 篇</option>
+                        <option value="20">20 篇</option>
+                    </select>
+                </div>
+                <div class="form-group third-width">
+                    <label for="keyword">🔍 关键词</label>
+                    <input type="text" id="keyword" name="keyword" required placeholder="emotion, transformer">
+                </div>
 
-                    <div class="form-group">
-                        <label for="category">📚 研究领域</label>
-                        <select id="category" name="category" required>
-                            <option value="">选择研究领域</option>
-                            <option value="cs.CV">计算机视觉 (cs.CV)</option>
-                            <option value="cs.AI">人工智能 (cs.AI)</option>
-                            <option value="cs.LG">机器学习 (cs.LG)</option>
-                            <option value="cs.CL">计算语言学 (cs.CL)</option>
-                            <option value="cs.RO">机器人学 (cs.RO)</option>
-                            <option value="stat.ML">统计机器学习 (stat.ML)</option>
-                            <option value="eess.SY">系统控制 (eess.SY)</option>
-                        </select>
-                    </div>
+                <!-- 日期选择 -->
+                <div class="form-group full-width" style="margin-bottom: 8px; margin-top: 8px;">
+                    <label style="color: #8a7a9a; font-size: 0.75rem;">📅 日期范围</label>
+                </div>
+                <div class="form-group third-width">
+                    <label for="dateFrom">起始日期</label>
+                    <input type="date" id="dateFrom" name="dateFrom" required>
+                </div>
+                <div class="form-group third-width">
+                    <label for="dateTo">结束日期</label>
+                    <input type="date" id="dateTo" name="dateTo" required>
+                </div>
 
-                    <div class="form-group">
-                        <label for="keyword">🔍 关键词</label>
-                        <input type="text" id="keyword" name="keyword" required
-                               placeholder="例如: emotion, transformer">
-                        <div class="input-help">输入您想搜索的论文关键词</div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="dateFrom">📅 起始日期</label>
-                        <input type="date" id="dateFrom" name="dateFrom" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="dateTo">📅 结束日期</label>
-                        <input type="date" id="dateTo" name="dateTo" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="maxResults">📊 最大结果数</label>
-                        <select id="maxResults" name="maxResults">
-                            <option value="5">5篇</option>
-                            <option value="10" selected>10篇</option>
-                            <option value="15">15篇</option>
-                            <option value="20">20篇</option>
-                        </select>
-                    </div>
-
-                    <button type="submit" class="btn" id="searchBtn">
+                <!-- 提交按钮 -->
+                <div class="form-group full-width" style="margin-top: 16px;">
+                    <button type="submit" class="btn-submit" id="searchBtn">
                         🚀 开始分析论文
                     </button>
-                </form>
+                </div>
+            </form>
+        </section>
+
+        <!-- 进度条 -->
+        <section class="progress-section" id="progressSection">
+            <div class="progress-header">
+                <span id="progressMessage">正在处理论文...</span>
+                <span id="progressPercent">0%</span>
+            </div>
+            <div class="progress-bar-container">
+                <div class="progress-bar" id="progressBar" style="width: 0%"></div>
+            </div>
+        </section>
+
+        <!-- 结果区域 -->
+        <section class="results-section">
+            <div class="results-header" id="resultsHeader" style="display: none;">
+                <h3>📄 分析结果</h3>
+                <span class="results-count" id="resultsCount"></span>
             </div>
 
-            <div class="results-section">
-                <div class="results-header">
-                    <span>📄 分析结果</span>
-                    <span class="pagination-info" id="paginationInfo" style="display: none;"></span>
-                </div>
-
-                <!-- 添加进度条 -->
-                <div class="progress-container" id="progressContainer">
-                    <div class="progress-header">
-                        <span id="progressMessage">正在处理论文...</span>
-                    </div>
-                    <div class="progress-bar-container">
-                        <div class="progress-bar" id="progressBar" style="width: 0%"></div>
-                    </div>
-                </div>
-
-                <div class="results-content" id="results">
-                    <div class="empty-state">
-                        <div class="icon">📚</div>
-                        <p>请填写搜索参数并点击"开始分析论文"来获取结果</p>
-                    </div>
-                </div>
-                <div class="pagination-controls" id="paginationControls" style="display: none;">
-                    <button class="pagination-btn" id="prevBtn">← 上一篇</button>
-                    <div class="pagination-dots" id="paginationDots"></div>
-                    <button class="pagination-btn primary" id="nextBtn">下一篇 →</button>
+            <div id="results">
+                <div class="empty-state">
+                    <div class="icon">📚</div>
+                    <p>请填写搜索参数并点击"开始分析"来获取论文摘要</p>
                 </div>
             </div>
-        </div>
+        </section>
     </div>
 
     <script>
         // 全局变量
         let allPapers = [];
-        let currentPageIndex = 0;
-        let streamReader = null; // 用于流式读取的reader
+        const STORAGE_KEY = 'arxiv_papers_cache';
+        const STORAGE_TIMESTAMP_KEY = 'arxiv_papers_cache_timestamp';
+        const CACHE_EXPIRY = 24 * 60 * 60 * 1000; // 24 小时过期
 
-        // 配置marked.js
+        // 保存到 localStorage
+        function saveToStorage(papers) {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(papers));
+                localStorage.setItem(STORAGE_TIMESTAMP_KEY, Date.now().toString());
+            } catch (e) {
+                console.error('保存到 localStorage 失败:', e);
+            }
+        }
+
+        // 从 localStorage 加载
+        function loadFromStorage() {
+            try {
+                const timestamp = localStorage.getItem(STORAGE_TIMESTAMP_KEY);
+                const now = Date.now();
+
+                // 检查是否过期
+                if (timestamp && (now - parseInt(timestamp)) > CACHE_EXPIRY) {
+                    localStorage.removeItem(STORAGE_KEY);
+                    localStorage.removeItem(STORAGE_TIMESTAMP_KEY);
+                    return null;
+                }
+
+                const data = localStorage.getItem(STORAGE_KEY);
+                return data ? JSON.parse(data) : null;
+            } catch (e) {
+                console.error('从 localStorage 加载失败:', e);
+                return null;
+            }
+        }
+
+        // 清除缓存
+        function clearStorage() {
+            localStorage.removeItem(STORAGE_KEY);
+            localStorage.removeItem(STORAGE_TIMESTAMP_KEY);
+        }
+
+        // 渲染论文卡片
+        function createPaperCard(paper) {
+            const card = document.createElement('div');
+            card.className = 'paper-card';
+
+            const isSuccess = paper.success && paper.markdown_content;
+
+            card.innerHTML = `
+                <div class="paper-header">
+                    <div class="paper-title">${paper.title || '未知标题'}</div>
+                    <div class="paper-meta">
+                        <span class="paper-status ${isSuccess ? 'success' : 'error'}">
+                            ${isSuccess ? '✓ 处理成功' : '✗ 处理失败'}
+                        </span>
+                    </div>
+                </div>
+                <div class="paper-content">
+                    ${isSuccess ? renderMarkdown(paper.markdown_content) :
+                        `<div class="error-box">
+                            <strong>处理失败:</strong> ${paper.error || '未知错误'}
+                        </div>`}
+                </div>
+                <div class="paper-footer">
+                    <span>👥 ${paper.authors ? paper.authors.slice(0, 3).join(', ') + (paper.authors.length > 3 ? ' 等' : '') : '未知'}</span>
+                    <span>📅 ${paper.published || '未知'}</span>
+                </div>
+            `;
+
+            return card;
+        }
+
+        // 恢复缓存的数据
+        function restoreCachedData() {
+            const cachedPapers = loadFromStorage();
+            if (cachedPapers && cachedPapers.length > 0) {
+                allPapers = cachedPapers;
+                const results = document.getElementById("results");
+                const resultsHeader = document.getElementById("resultsHeader");
+                const resultsCount = document.getElementById("resultsCount");
+
+                results.innerHTML = '';
+                cachedPapers.forEach(paper => {
+                    const card = createPaperCard(paper);
+                    results.appendChild(card);
+                });
+
+                resultsHeader.style.display = 'flex';
+                resultsCount.textContent = `共 ${cachedPapers.length} 篇`;
+            }
+        }
+
+        // 配置 marked.js
         marked.setOptions({
             breaks: true,
             gfm: true,
@@ -636,65 +783,7 @@
             }
         });
 
-        // 显示加载状态
-        function showLoading() {
-            const container = document.getElementById("results");
-            const paginationControls = document.getElementById("paginationControls");
-            const paginationInfo = document.getElementById("paginationInfo");
-
-            container.innerHTML = `
-                <div class="loading">
-                    <div class="spinner"></div>
-                    <p>正在搜索和分析论文，请稍候...</p>
-                </div>
-            `;
-            paginationControls.style.display = 'none';
-            paginationInfo.style.display = 'none';
-
-            // 显示进度条
-            document.getElementById('progressContainer').style.display = 'block';
-        }
-
-        // 显示错误信息
-        function showError(message) {
-            const container = document.getElementById("results");
-            const paginationControls = document.getElementById("paginationControls");
-            const paginationInfo = document.getElementById("paginationInfo");
-
-            container.innerHTML = `
-                <div class="error">
-                    <div class="error-icon">❌</div>
-                    <strong>出现错误</strong>
-                    <p>${message}</p>
-                    <p style="margin-top: 10px; font-size: 0.9em;">请检查您的输入参数并重试</p>
-                </div>
-            `;
-            paginationControls.style.display = 'none';
-            paginationInfo.style.display = 'none';
-            document.getElementById('progressContainer').style.display = 'none';
-        }
-
-        // 显示处理出错的论文
-        function showPaperError(paper, index) {
-            return `
-                <div class="paper-card">
-                    <div class="paper-header">
-                        <div class="paper-title">${paper.title || '未知标题'}</div>
-                        <div class="paper-status error">处理失败</div>
-                    </div>
-                    <div class="paper-content">
-                        <div class="error">
-                            <div class="error-icon">⚠️</div>
-                            <strong>论文 ${index + 1} 处理出错</strong>
-                            <p><strong>作者:</strong> ${paper.authors ? paper.authors.join(", ") : '未知'}</p>
-                            <p><strong>错误原因:</strong> ${paper.error || '返回的Markdown格式不正确或内容为空'}</p>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-
-        // 渲染Markdown内容
+        // 渲染 Markdown 内容
         function renderMarkdown(content) {
             try {
                 if (!content || typeof content !== 'string') {
@@ -703,141 +792,67 @@
                 const html = marked.parse(content);
                 return `<div class="markdown-content">${html}</div>`;
             } catch (error) {
-                throw new Error(`Markdown解析失败: ${error.message}`);
+                console.error('Markdown 解析失败:', error);
+                return `<div class="error-box">Markdown 解析失败</div>`;
             }
         }
 
-        // 显示指定索引的论文
-        function showPaper(index) {
-            const container = document.getElementById("results");
-            const paginationInfo = document.getElementById("paginationInfo");
+        // 显示加载状态
+        function showLoading() {
+            const results = document.getElementById("results");
+            const resultsHeader = document.getElementById("resultsHeader");
+            const resultsCount = document.getElementById("resultsCount");
+            const progressSection = document.getElementById("progressSection");
 
-            if (index < 0 || index >= allPapers.length) {
-                container.innerHTML = '<div class="error">论文索引超出范围</div>';
-                return;
-            }
-
-            const paper = allPapers[index];
-            currentPageIndex = index;
-
-            // 更新分页信息
-            paginationInfo.textContent = `第 ${index + 1} 篇 / 共 ${allPapers.length} 篇`;
-
-            // 检查论文数据格式并渲染
-            try {
-                if (!paper.success || !paper.markdown_content) {
-                    container.innerHTML = showPaperError(paper, index);
-                } else {
-                    container.innerHTML = renderMarkdown(paper.markdown_content);
-                }
-            } catch (error) {
-                console.error('渲染论文时出错:', error);
-                container.innerHTML = showPaperError(paper, index);
-            }
-
-            // 更新分页控件状态
-            updatePaginationControls();
-        }
-
-        // 更新分页控件
-        function updatePaginationControls() {
-            const prevBtn = document.getElementById("prevBtn");
-            const nextBtn = document.getElementById("nextBtn");
-            const dotsContainer = document.getElementById("paginationDots");
-
-            // 更新按钮状态
-            prevBtn.disabled = currentPageIndex === 0;
-            nextBtn.disabled = currentPageIndex === allPapers.length - 1;
-
-            // 生成分页点
-            dotsContainer.innerHTML = '';
-            for (let i = 0; i < allPapers.length; i++) {
-                const dot = document.createElement('div');
-                dot.className = `pagination-dot ${i === currentPageIndex ? 'active' : ''}`;
-                dot.onclick = () => showPaper(i);
-                dot.title = `论文 ${i + 1}`;
-                dotsContainer.appendChild(dot);
-            }
-        }
-
-        // 初始化分页控件事件
-        function initPagination() {
-            const prevBtn = document.getElementById("prevBtn");
-            const nextBtn = document.getElementById("nextBtn");
-
-            prevBtn.onclick = () => {
-                if (currentPageIndex > 0) {
-                    showPaper(currentPageIndex - 1);
-                }
-            };
-
-            nextBtn.onclick = () => {
-                if (currentPageIndex < allPapers.length - 1) {
-                    showPaper(currentPageIndex + 1);
-                }
-            };
-
-            // 键盘导航
-            document.addEventListener('keydown', (e) => {
-                if (allPapers.length === 0) return;
-
-                if (e.key === 'ArrowLeft' && currentPageIndex > 0) {
-                    showPaper(currentPageIndex - 1);
-                } else if (e.key === 'ArrowRight' && currentPageIndex < allPapers.length - 1) {
-                    showPaper(currentPageIndex + 1);
-                }
-            });
-        }
-
-        // 渲染论文卡片
-        function renderPaperCard(paper, index) {
-            const paperCard = document.createElement('div');
-            paperCard.className = 'paper-card new';
-            paperCard.innerHTML = `
-                <div class="paper-header">
-                    <div class="paper-title">${paper.title || '未知标题'}</div>
-                    <div class="paper-status ${paper.success ? 'success' : 'error'}">
-                        ${paper.success ? '处理成功' : '处理失败'}
-                    </div>
-                </div>
-                <div class="paper-content">
-                    ${paper.success ? renderMarkdown(paper.markdown_content) :
-                        `<div class="error">
-                            <strong>处理失败:</strong> ${paper.error || '未知错误'}
-                        </div>`}
-                </div>
-                <div class="paper-footer">
-                    作者: ${paper.authors ? paper.authors.join(", ") : '未知'} |
-                    发表日期: ${paper.published || '未知'}
+            results.innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>正在搜索和分析论文，请稍候...</p>
                 </div>
             `;
 
-            return paperCard;
+            resultsHeader.style.display = 'none';
+            progressSection.style.display = 'block';
         }
 
-        // 流式响应处理函数
+        // 显示错误
+        function showError(message) {
+            const results = document.getElementById("results");
+            const progressSection = document.getElementById("progressSection");
+
+            results.innerHTML = `
+                <div class="error-box">
+                    <div class="error-icon">❌</div>
+                    <strong>出现错误</strong>
+                    <p>${message}</p>
+                </div>
+            `;
+
+            progressSection.style.display = 'none';
+        }
+
+        // 流式响应处理
         async function processStream(response) {
-            const container = document.getElementById("results");
+            const results = document.getElementById("results");
+            const resultsHeader = document.getElementById("resultsHeader");
+            const resultsCount = document.getElementById("resultsCount");
             const progressMessage = document.getElementById("progressMessage");
+            const progressPercent = document.getElementById("progressPercent");
             const progressBar = document.getElementById("progressBar");
 
-            // 清空结果区域
-            container.innerHTML = '';
+            results.innerHTML = '';
+            allPapers = [];
 
-            // 获取流式读取器
             const reader = response.body.getReader();
             const decoder = new TextDecoder();
             let buffer = '';
 
-            // 读取流数据
             while (true) {
                 const { value, done } = await reader.read();
                 if (done) break;
 
-                // 解码数据并添加到缓冲区
                 buffer += decoder.decode(value, { stream: true });
 
-                // 处理缓冲区中的完整JSON对象
                 let boundary;
                 while ((boundary = buffer.indexOf('\n')) !== -1) {
                     const line = buffer.substring(0, boundary).trim();
@@ -848,44 +863,41 @@
                     try {
                         const event = JSON.parse(line);
 
-                        // 处理不同类型的事件
                         switch (event.type) {
                             case 'status':
-                                // 更新进度信息
                                 progressMessage.textContent = event.message;
-                                progressBar.style.width = `${(event.processed / event.total) * 100}%`;
+                                const percent = Math.round((event.processed / event.total) * 100);
+                                progressPercent.textContent = percent + '%';
+                                progressBar.style.width = percent + '%';
                                 break;
 
                             case 'paper':
-                                // 添加到论文列表
                                 allPapers.push(event.data);
+                                const card = createPaperCard(event.data);
+                                results.appendChild(card);
 
-                                // 创建并添加论文卡片
-                                const paperCard = renderPaperCard(event.data, allPapers.length - 1);
-                                container.appendChild(paperCard);
+                                // 平滑滚动到新卡片
+                                setTimeout(() => {
+                                    card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                                }, 100);
 
-                                // 滚动到最新卡片
-                                paperCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                                resultsCount.textContent = `共 ${allPapers.length} 篇`;
 
-                                // 更新分页控件
-                                document.getElementById("paginationControls").style.display = 'flex';
-                                document.getElementById("paginationInfo").style.display = 'block';
-                                updatePaginationControls();
+                                // 保存到 localStorage
+                                saveToStorage(allPapers);
                                 break;
 
                             case 'complete':
-                                // 处理完成
                                 progressMessage.textContent = '所有论文处理完成！';
+                                progressPercent.textContent = '100%';
                                 progressBar.style.width = '100%';
 
-                                // 显示第一篇论文
-                                if (allPapers.length > 0) {
-                                    showPaper(0);
-                                }
+                                setTimeout(() => {
+                                    document.getElementById("progressSection").style.display = 'none';
+                                }, 1500);
                                 break;
 
                             case 'error':
-                                // 显示错误信息
                                 showError(event.message);
                                 break;
                         }
@@ -893,6 +905,12 @@
                         console.error('解析事件错误:', e);
                     }
                 }
+            }
+
+            // 显示结果头部
+            if (allPapers.length > 0) {
+                resultsHeader.style.display = 'flex';
+                resultsCount.textContent = `共 ${allPapers.length} 篇`;
             }
         }
 
@@ -902,6 +920,8 @@
 
             const data = {
                 apiKey: document.getElementById("apiKey").value,
+                apiBase: document.getElementById("apiBase").value,
+                modelName: document.getElementById("modelName").value,
                 category: document.getElementById("category").value,
                 keyword: document.getElementById("keyword").value,
                 dateFrom: document.getElementById("dateFrom").value,
@@ -912,19 +932,16 @@
             const btn = document.getElementById("searchBtn");
             const originalText = btn.innerText;
 
-            // 禁用按钮并显示加载状态
             btn.disabled = true;
-            btn.innerText = "⏳ 正在分析...";
+            btn.innerText = "⏳ 分析中...";
 
-            // 重置论文列表
+            // 清除旧缓存
+            clearStorage();
             allPapers = [];
-            currentPageIndex = 0;
 
-            // 显示加载状态
             showLoading();
 
             try {
-                // 发送请求
                 const response = await fetch("/summarize", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
@@ -935,30 +952,27 @@
                     throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                 }
 
-                // 处理流式响应
                 await processStream(response);
 
             } catch (error) {
                 console.error("请求失败:", error);
                 showError(error.message || "网络请求失败，请检查网络连接或稍后重试");
             } finally {
-                // 恢复按钮状态
                 btn.disabled = false;
                 btn.innerText = originalText;
             }
         });
 
-        // 页面加载时初始化
+        // 页面初始化
         document.addEventListener('DOMContentLoaded', function() {
-            // 设置默认日期
             const today = new Date();
             const oneWeekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
 
             document.getElementById('dateTo').value = today.toISOString().split('T')[0];
             document.getElementById('dateFrom').value = oneWeekAgo.toISOString().split('T')[0];
 
-            // 初始化分页控件
-            initPagination();
+            // 恢复缓存的数据
+            restoreCachedData();
         });
     </script>
 </body>
