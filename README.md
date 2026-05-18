@@ -22,9 +22,6 @@ arXivAgent/
 ├── requirements.txt        # Python 依赖
 ├── .env.example            # 环境变量示例
 │
-├── api/
-│   ├── __init__.py
-│   └── flask_app.py        # Flask API 应用工厂 + 路由
 │
 ├── core/
 │   ├── __init__.py
